@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Professional Todo Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #fafbfc;
+            color: #202124;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8eaed;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 20px;
+            color: #1a73e8;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1557b0;
+            box-shadow: 0 2px 4px rgba(26, 115, 232, 0.2);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+        }
+
+        .btn-ghost:hover {
+            background: #f8f9fa;
+            border-color: #c4c7c5;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e8eaed;
+            padding: 24px 0;
+            position: sticky;
+            top: 64px;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 24px 12px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 24px;
+            color: #3c4043;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-item:hover {
+            background: #f8f9fa;
+        }
+
+        .sidebar-item.active {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-right: 3px solid #1a73e8;
+        }
+
+        .sidebar-item-icon {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .task-count {
+            margin-left: auto;
+            background: #e8eaed;
+            color: #5f6368;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px 40px;
+            max-width: calc(100% - 280px);
+        }
+
+        .content-header {
+            margin-bottom: 32px;
+        }
+
+        .content-title {
+            font-size: 28px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            color: #5f6368;
+            font-size: 14px;
+        }
+
+        /* Quick Add */
+        .quick-add {
+            background: white;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-add:hover {
+            border-color: #dadce0;
+            box-shadow: 0 2px 4px rgba(60, 64, 67, 0.08);
+        }
+
+        .quick-add-input {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #5f6368;
+            background: transparent;
+            width: 100%;
+        }
+
+        /* Task List */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .task-item:hover {
+            border-color: #dadce0;
+            box-shadow: 0 2px 8px rgba(60, 64, 67, 0.08);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dadce0;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-checkbox:hover {
+            border-color: #1a73e8;
+        }
+
+        .task-checkbox.completed {
+            background: #34a853;
+            border-color: #34a853;
+            color: white;
+        }
+
+        .task-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #5f6368;
+        }
+
+        .task-description {
+            font-size: 13px;
+            color: #5f6368;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .task-priority {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background: #fce8e6;
+            color: #d93025;
+        }
+
+        .priority-medium {
+            background: #fef7e0;
+            color: #f9ab00;
+        }
+
+        .priority-low {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .task-due {
+            font-size: 12px;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-due.overdue {
+            color: #d93025;
+        }
+
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+
+        .task-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+            transition: all 0.2s ease;
+        }
+
+        .task-action-btn:hover {
+            background: #f8f9fa;
+            color: #202124;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(32, 33, 36, 0.6);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 560px;
+            box-shadow: 0 8px 32px rgba(32, 33, 36, 0.28);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+            font-size: 20px;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #f8f9fa;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: #5f6368;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            color: #202124;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        .footer {
+            background: white;
+            border-top: 1px solid #e8eaed;
+            padding: 20px 40px;
+            text-align: center;
+            color: #5f6368;
+            font-size: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #5f6368;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: #1a73e8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid #e8eaed;
+                padding: 16px 0;
+            }
+
+            .content {
+                max-width: 100%;
+                padding: 24px 20px;
+            }
+
+            .header {
+                padding: 0 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+                padding: 20px;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item {
+            animation: slideIn 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">T</div>
+            Todo App
+        </div>
+        <div class="header-actions">
+             <a href="{% url 'add'  %}" style=" text-decoration: none;color: white;">
+            <button class="btn btn-primary" >
+                 Add Todo
+            </button>
+             </a>
+             <a href="{% url 'logout'  %}" style=" text-decoration: none;color: #313235;">
+            <button class="btn btn-ghost"  >
+                log out
+            </button>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Views</div>
+                <div class="sidebar-item active" data-filter="all">
+                    <span class="sidebar-item-icon">📋</span>
+                    All Todos
+                    <span class="task-count" id="allCount">{{allTodosCount}}</span>
+                </div>
+                <div class="sidebar-item" data-filter="today">
+                    <span class="sidebar-item-icon">📅</span>
+                    Today
+                    <span class="task-count" id="todayCount">{{todayTodosCount}}</span>
+                </div>
+                <div class="sidebar-item" data-filter="completed">
+                    <span class="sidebar-item-icon">✅</span>
+                    Completed
+                    <span class="task-count" id="completedCount">{{completedTods}}</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Priority</div>           
+    <div class="sidebar-item" data-filter="high" style="cursor: pointer;">
+        <span class="sidebar-item-icon">🔴</span>
+       <a href="{% url 'priority' 'high' %}" style="text-decoration: none;color: black;"> High Priority  </a>
+        <span class="task-count" id="highCount">{{highPriorityCount}}</span>
+    </div>
+
+
+                <div class="sidebar-item" data-filter="medium">
+                    <span class="sidebar-item-icon">🟡</span>
+                  <a href="{% url 'priority' 'medium' %}" style="text-decoration: none;color: black;">  Medium Priority  </a>  
+                    <span class="task-count" id="mediumCount">{{mediumPriorityCount}}</span>
+                </div>
+                <div class="sidebar-item" data-filter="low">
+                    <span class="sidebar-item-icon">🟢</span>
+                 <a href="{% url 'priority' 'low' %}" style="text-decoration: none;color: black;">  Low Priority   </a> 
+                    <span class="task-count" id="lowCount">{{lowPriorityCount}}</span>
+                </div>
+                
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            <div class="content-header">
+                <h1 class="content-title" id="contentTitle">Welcome {{username}}</h1>
+                <p class="content-subtitle" id="contentSubtitle">Manage your todos efficiently</p>
+            </div>
+
+            <!-- Quick Add -->
+            <div class="quick-add" >
+            <form action="{% url 'add' %}" method="POST" >
+                {% csrf_token %}
+                <input type="text" class="quick-add-input" placeholder="+ Add a task..." name="title">
+            </form>
+            </div>
+
+            <!-- Task List -->
+            <div class="task-list" id="taskList">
+                <!-- Tasks will be rendered here -->
+
+            <!-- Static To-Do Entries Section -->
+<section style="margin-top: 40px;">
+    <h2 style="font-size: 20px; font-weight: 500; margin-bottom: 16px;">Your To-Do Entries</h2>
+    {% if todos %}
+      {% for todo in todos %}
+    
+      {% if todo.is_completed %}
+    <div class="task-item completed">
+        <div class="task-header">
+            <div class="task-checkbox completed">✓</div>
+            <div class="task-content">
+            <div class="task-title completed">{{todo.title}}</div>
+            <div class="task-description">{{todo.descp}}</div>
+            <div class="task-meta">
+                    <span class="task-priority priority-medium">{{todo.priority}}</span>
+                    <span class="task-due">📅 {{todo.created_at}}</span>
+                </div>
+            </div>
+            <div class="task-actions" style="opacity: 1;">
+                <a class="task-action-btn" title="Mark" href="{% url 'isCompleted' todo.id %}" style=" text-decoration: none;">✔️</a>
+                <a class="task-action-btn" title="Update" href="{% url 'update' todo.id  %}" style=" text-decoration: none;">✏️</a>
+                <a class="task-action-btn" title="Delete" href="{% url 'delete' todo.id  %}" style=" text-decoration: none;">🗑️</a>
+            </div>
+        </div>
+    </div>
+    
+     {% else%}
+    <div class="task-item ">
+        <div class="task-header">
+            <div class="task-checkbox"></div>
+            <div class="task-content">
+            <div class="task-title">{{todo.title}}</div>
+            <div class="task-description">{{todo.descp}}</div>
+            <div class="task-meta">
+                    <span class="task-priority priority-medium">{{todo.priority}}</span>
+                    <span class="task-due">📅 {{todo.created_at}}</span>
+                </div>
+            </div>
+            <div class="task-actions" style="opacity: 1;">
+                <a class="task-action-btn" title="Mark" href="{% url 'isCompleted' todo.id %}" style=" text-decoration: none;">✔️</a>
+                <a class="task-action-btn" title="Update" href="{% url 'update' todo.id  %}" style=" text-decoration: none;">✏️</a>
+                <a class="task-action-btn" title="Delete" href="{% url 'delete' todo.id  %}" style=" text-decoration: none;">🗑️</a>
+            </div>
+        </div>
+    </div>
+        
+        {% endif %}
+        {% endfor %}
+    {% else %}
+                <div class="empty-state-icon">📝</div>
+                <h3>No tasks yet</h3>
+                <p>Add your first todo to get started with Todo App and stay organized.</p>
+    {% endif %}
+    
+
+    
+</section>
+   </div>
+
+        </main>
+    </div>
+
+    
+    </body>
+    </html>
